@@ -1,0 +1,68 @@
+counter.v
+
+`timescale 1ns / 1ps
+module UpDownCounter(
+    input wire clk,
+    input wire reset,
+    input wire up_down,
+    output reg [3:0] count
+);
+
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        count <= 4'b0000;
+    end else begin
+        if (up_down) begin
+            // Count up
+            count <= count + 1;
+        end else begin
+            // Count down
+            count <= count - 1;
+        end
+    end
+end
+
+endmodule
+
+counter test.v
+`timescale 1ns / 1ps
+
+module UpDownCounter_tb;
+
+reg clk, reset, up_down;
+wire [3:0] count;
+
+// Instantiate the UpDownCounter module
+UpDownCounter uut (
+    .clk(clk),
+    .reset(reset),
+    .up_down(up_down),
+    .count(count)
+);
+
+// Clock generation
+always #5 clk = ~clk;
+
+// Testbench stimulus
+initial begin
+    // Initialize inputs
+    clk = 0;
+    reset = 1;
+    up_down = 1;
+
+    // Apply reset
+    #10 reset = 0;
+
+    // Test up counting
+    #20 up_down = 1; // Count up
+    #100;           // Run for a few cycles
+
+    // Test down counting
+    up_down = 0;    // Count down
+    #100;           // Run for a few cycles
+
+    // End simulation
+    $stop;
+end
+
+endmodule
